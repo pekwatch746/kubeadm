@@ -85,19 +85,16 @@
       name: kubelet
       daemon_reload: yes
       state: restarted
-    when: kubeletconfig.changed
 
   - name: Making systemd as Cgroup Driver
     copy:
       src: daemon.json
       dest: /etc/docker/daemon.json
-    notify: RestartDocker
 
   - name: Restaring Docker...
     service:
       name: docker
       state: restarted
-    when: RestartDocker.changed
 
   - name: update sysctl param
     copy:
@@ -105,11 +102,9 @@
       dest: /etc/sysctl.d/k8s.conf
       owner: root
       group: root
-    register: result
 
   - name: System reload
     shell: sysctl --system
-    when: result.changed
 
   - name: Initialize the Kubernetes cluster
     become: true
