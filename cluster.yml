@@ -33,8 +33,6 @@
       - docker-ce
       - docker-ce-cli
       - containerd.io
-    notify:
-      - docker status
 
   - name: Ensure user group exists
     group:
@@ -117,3 +115,14 @@
      - sudo cp /etc/kubernetes/admin.conf "$HOME/.kube/config"
      - sudo chown "{{ ansible_user }}:{{ ansible_user }}" "$HOME/.kube/config"
 
+  - name: Remove taints from master node
+    become: true
+    command: kubectl taint nodes --all node-role.kubernetes.io/master-
+
+  - name: Create Tiller service account
+    become: true
+    command: kubectl -n kube-system create serviceaccount tiller
+
+  - name: Setup Tiller ClusterBinding
+    become: true
+    command: kubectl create clusterrolebinding tiller --clusterrole=cluster-admin --serviceaccount=kube-system:tiller
