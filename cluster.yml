@@ -106,7 +106,7 @@
 
   - name: Initialize the Kubernetes cluster
     become: true
-    command: kubeadm init
+    command: kubeadm init --pod-network-cidr=10.244.0.0/16
 
   - name: Setup kubeconfig
     command: "{{ item }}"
@@ -114,6 +114,10 @@
      - mkdir -p "$HOME/.kube"
      - sudo cp /etc/kubernetes/admin.conf "$HOME/.kube/config"
      - sudo chown "{{ ansible_user }}:{{ ansible_user }}" "$HOME/.kube/config"
+
+  - name: Deploy Flannel
+    become: true
+    command: kubectl apply -f https://raw.githubusercontent.com/flannel-io/flannel/master/Documentation/kube-flannel.yml
 
   - name: Remove taints from master node
     become: true
